@@ -11,6 +11,8 @@ project(NONE)
 # NORDIC SDK APP START
 target_sources(app PRIVATE
   src/main.c
+  usr/src/ws.c
+  usr/src/bs.c
 )
 
 # Preinitialization related to Thingy:53 DFU

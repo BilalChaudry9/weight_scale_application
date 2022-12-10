@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-
+#include <time.h>
 #include <zephyr/types.h>
 #include <stddef.h>
 #include <string.h>
@@ -25,6 +25,9 @@
 #include <zephyr/settings/settings.h>
 
 #include <dk_buttons_and_leds.h>
+
+#include "usr/inc/ws.h"
+#include "usr/inc/bs.h"
 
 #define DEVICE_NAME             CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN         (sizeof(DEVICE_NAME) - 1)
@@ -151,21 +154,39 @@ static void app_led_cb(bool led_state)
 
 static bool app_button_cb(void)
 {
+	printk("app_button_state ( %d )\n", app_button_state);
 	return app_button_state;
 }
 
+static uint8_t app_battery_val = 0x63;
+static uint8_t app_battery_cb(void)
+{
+	if(app_battery_val >= 0x64)app_battery_val = 0x00;
+	app_battery_val++;
+	printk("app_battery_val ( %d )\n", app_battery_val);
+	return app_battery_val;
+}
 static struct bt_lbs_cb lbs_callbacs = {
 	.led_cb    = app_led_cb,
 	.button_cb = app_button_cb,
 };
+static struct bt_ws_cb ws_callbacs = {
+	.led_cb    = app_led_cb,
+	.button_cb = app_button_cb,
+};
 
+static struct bt_bs_cb bs_callbacs = {
+	//.led_cb    = app_led_cb,
+	.battery_cb = app_battery_cb,
+};
 static void button_changed(uint32_t button_state, uint32_t has_changed)
 {
 	if (has_changed & USER_BUTTON) {
 		uint32_t user_button_state = button_state & USER_BUTTON;
 
-		bt_lbs_send_button_state(user_button_state);
+		printk("button_changed err ( %d )\n", bt_lbs_send_button_state(user_button_state));
 		app_button_state = user_button_state ? true : false;
+		
 	}
 }
 
@@ -229,6 +250,16 @@ void main(void)
 	err = bt_lbs_init(&lbs_callbacs);
 	if (err) {
 		printk("Failed to init LBS (err:%d)\n", err);
+		return;
+	}
+	err = bt_ws_init(&ws_callbacs);
+	if (err) {
+		printk("Failed to init WS (err:%d)\n", err);
+		return;
+	}
+	err = bt_bs_init(&bs_callbacs);
+	if (err) {
+		printk("Failed to init BS (err:%d)\n", err);
 		return;
 	}
 

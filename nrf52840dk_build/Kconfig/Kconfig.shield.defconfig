@@ -1,0 +1,4 @@
+osource "c:/Work/nRF_VSCode/peripheral_uart_twi/boards/shields/*/Kconfig.defconfig"
+osource "c:/Work/nRF_VSCode/peripheral_uart_twi1/boards/shields/*/Kconfig.defconfig"
+osource "c:/Work/nRF_VSCode/weight_scale_application/boards/shields/*/Kconfig.defconfig"
+osource "C:/ncs/v2.2.0/nrf/boards/shields/*/Kconfig.defconfig"
